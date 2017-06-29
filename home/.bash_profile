@@ -9,7 +9,14 @@ fi
 
 PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
+# anyenv
 export PATH
 export PATH="$HOME/.anyenv/bin:$PATH"
-export PATH=$PATH:./node_modules/.bin
 eval "$(anyenv init -)"
+
+# node modules bin
+export PATH=$PATH:./node_modules/.bin
+
+# mac browser for jupyter notebook open
+export BROWSER=open
+
