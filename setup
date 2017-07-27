@@ -41,37 +41,46 @@ deploy() {
 }
 
 install_macos() {
-  # todo: install homebrew
+  # install homebrew
+  if [ ! -e /usr/local/bin/brew ]; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
 
   # install anyenv
   if [ ! -e ~/.anyenv ]; then
     git clone https://github.com/riywo/anyenv ~/.anyenv
-    exec $SHELL -l
+    eval "$(anyenv init -)"
   fi
   # install pyenv, pyenv-virtualenv, pyenv-update
   if [ ! -e ~/.anyenv/envs/pyenv ]; then
     anyenv install pyenv
-    exec $SHELL -l
-    git clone https://github.com/yyuu/pyenv-virtualenv ~/.anyenv/envs/pyenv/plugins/pyenv-virtualenv
-    git clone https://github.com/pyenv/pyenv-update.git ~/.anyenv/envs/pyenv/plugins/pyenv-update
+    eval "$(anyenv init -)"
+    git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+    git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
   fi
   # install rbenv
   if [ ! -e ~/.anyenv/envs/rbenv ]; then
-    anyenv install ebenv
-    exec $SHELL -l
+    anyenv install rbenv
+    eval "$(anyenv init -)"
+    git clone https://github.com/rkh/rbenv-update.git "$(rbenv root)/plugins/rbenv-update"
+  fi
+  # install ndenv
+  if [ ! -e ~/.anyenv/envs/ndenv ]; then
+    anyenv install ndenv
+    eval "$(anyenv init -)"
   fi
 }
 
 update_macos() {
   # update pyenv, rbenv
   pyenv update
-  cd ~/.anyenv/envs/rbenv/plugins/ruby-build && git pull
+  rbenv update
 }
 
 install_msys2() {
-  echo "not implements"
-
-  # todo: install tmux
+  # install tmux, winpty
+  pacman -S tmux
+  pacman -S winpty
 }
 
 case $1 in
