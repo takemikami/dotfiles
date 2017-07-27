@@ -1,0 +1,95 @@
+#!/bin/bash
+
+cd $(dirname $0)
+DOTFILES_HOME=`pwd`
+
+# check os
+OSTYPE=unknown
+UNAME=`uname`
+[[ $UNAME =~ "Darwin" ]] && OSTYPE=macos
+[[ $UNAME =~ "MSYS" ]] && OSTYPE=msys2
+[[ $UNAME =~ "MINGW" ]] && OSTYPE=msys2
+
+deploy() {
+  for f in `ls -a . | grep -e "^\.[^.]?*" | grep -v -e "^\.git$"`; do
+
+    # skip ignore path
+    [[ ${f} = ".git" ]] && continue
+
+    # check os type
+    os_ext=""
+    fname=$f
+    if [[ $f =~ ^(.*)-(.*)$ ]]; then
+      fname=${BASH_REMATCH[1]}
+      os_ext=${BASH_REMATCH[2]}
+    fi
+    if [ ${#os_ext} -ne 0 ] && [ ! ${os_ext} == ${OSTYPE} ]; then
+      continue
+    fi
+    if [ ${#os_ext} -eq 0 ] && [ -e $DOTFILES_HOME/$fname-${OSTYPE} ]; then
+      continue
+    fi
+
+    # create symbolic link
+    if [ -e ~/$fname ]; then
+      echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
+    else
+      ln -s $DOTFILES_HOME/$f ~/$f
+      echo "link $DOTFILES_HOME/$f -> ~/$fname"
+    fi
+  done
+}
+
+install_macos() {
+  # todo: install homebrew
+
+  # install anyenv
+  if [ ! -e ~/.anyenv ]; then
+    git clone https://github.com/riywo/anyenv ~/.anyenv
+    exec $SHELL -l
+  fi
+  # install pyenv, pyenv-virtualenv, pyenv-update
+  if [ ! -e ~/.anyenv/envs/pyenv ]; then
+    anyenv install pyenv
+    exec $SHELL -l
+    git clone https://github.com/yyuu/pyenv-virtualenv ~/.anyenv/envs/pyenv/plugins/pyenv-virtualenv
+    git clone https://github.com/pyenv/pyenv-update.git ~/.anyenv/envs/pyenv/plugins/pyenv-update
+  fi
+  # install rbenv
+  if [ ! -e ~/.anyenv/envs/rbenv ]; then
+    anyenv install ebenv
+    exec $SHELL -l
+  fi
+}
+
+update_macos() {
+  # update pyenv, rbenv
+  pyenv update
+  cd ~/.anyenv/envs/rbenv/plugins/ruby-build && git pull
+}
+
+install_msys2() {
+  echo "not implements"
+
+  # todo: install tmux
+}
+
+case $1 in
+  deploy)
+    deploy
+    ;;
+  install)
+    if [ ${OSTYPE} == "macos" ]; then
+      install_macos
+    elif [ ${OSTYPE} == "msys2" ]; then
+      install_msys2
+    fi
+    ;;
+  update)
+    if [ ${OSTYPE} == "macos" ]; then
+      update_macos
+    fi
+    ;;
+  *)
+    echo "usage: dotfiles/setup [deploy|install]"
+esac

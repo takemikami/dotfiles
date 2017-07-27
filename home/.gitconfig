@@ -1,7 +1,0 @@
-[user]
-	name = Mikami, Takeshi
-	email = takeshi.mikami@gmail.com
-[alias]
-        logall = log --branches --decorate=full
-        logfull = log --pretty=fuller --decorate=full
-

@@ -6,7 +6,6 @@ if [ -f ~/.bashrc ]; then
 fi
 
 # User specific environment and startup programs
-
 PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
 # anyenv
@@ -17,6 +16,9 @@ eval "$(anyenv init -)"
 # node modules bin
 export PATH=$PATH:./node_modules/.bin
 
-# mac browser for jupyter notebook open
-export BROWSER=open
+# for macos
+if [[ $(uname) =~ "Darwin" ]]; then
+	# browser for jupyter notebook open
+	export BROWSER=open
 
+fi
