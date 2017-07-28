@@ -34,7 +34,7 @@ deploy() {
     if [ -e ~/$fname ]; then
       echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
     else
-      ln -s $DOTFILES_HOME/$f ~/$f
+      ln -s $DOTFILES_HOME/$f ~/$fname
       echo "link $DOTFILES_HOME/$f -> ~/$fname"
     fi
   done

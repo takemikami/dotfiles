@@ -1,24 +1,29 @@
-# ~/.bash_profile: executed by bash(1) for login shells.
+# .bash_profile
 
-# source the users bashrc if it exists
-if [ -f "${HOME}/.bashrc" ] ; then
-  source "${HOME}/.bashrc"
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
 fi
 
-# Set PATH so it includes user's private bin if it exists
-if [ -d "${HOME}/bin" ] ; then
-  PATH="${HOME}/bin:${PATH}"
-fi
+# User specific environment and startup programs
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
-ATOM_HOME=/c/Users/takes/AppData/Local/atom/
-ANACONDA_HOME=/c/Users/takes/Anaconda3
+export ANACONDA_HOME=$HOMEDRIVE$HOMEPATH/Anaconda3
+export PATH=$PATH:$ANACONDA_HOME/Scripts:$ANACONDA_HOME
 
-export PATH=$PATH:$ATOM_HOME:$ANACONDA_HOME/Scripts:$ANACONDA_HOME
-
+alias vi=vim
 alias python="winpty python"
 alias ipython="winpty ipython"
 alias jupyter="winpty jupyter"
+alias atom="run_atom $@"
 
+run_atom() {
+  atom_home=$HOMEDRIVE$HOMEPATH/AppData/Local/atom
+  atom_rev=`ls $atom_home | grep -e "^app-" | head -1`
+  cmd /C "$atom_home/$atom_rev/resources/cli/atom.cmd $*"
+}
+
+# start tmux
 if [ -z "$TMUX" ]; then
   tmux
 fi
