@@ -78,9 +78,8 @@ update_macos() {
 }
 
 install_msys2() {
-  # install tmux, winpty
-  pacman -S tmux
-  pacman -S winpty
+  # install packages
+  pacman -S --needed --noconfirm tmux winpty diffutils
 }
 
 case $1 in
@@ -90,6 +89,7 @@ case $1 in
   install)
     if [ ${OSTYPE} == "macos" ]; then
       install_macos
+      update_macos
     elif [ ${OSTYPE} == "msys2" ]; then
       install_msys2
     fi
