@@ -5,11 +5,13 @@ DOTFILES_HOME=`pwd`
 
 # check os
 OSTYPE=unknown
-UNAME=`uname`
+UNAME=`uname -a`
 [[ $UNAME =~ "Darwin" ]] && OSTYPE=macos
 [[ $UNAME =~ "MSYS" ]] && OSTYPE=msys2
 [[ $UNAME =~ "MINGW" ]] && OSTYPE=msys2
+[[ $UNAME =~ "ubuntu" ]] && OSTYPE=ubuntu
 
+# deploy dotfiles
 deploy() {
   for f in `ls -a . | grep -e "^\.[^.]?*" | grep -v -e "^\.git$"`; do
 
@@ -40,48 +42,66 @@ deploy() {
   done
 }
 
-install_macos() {
-  # install homebrew
-  if [ ! -e /usr/local/bin/brew ]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  fi
-
+# install packages
+install_pkg_anyenv() {
   # install anyenv
+  export PATH="$HOME/.anyenv/bin:$PATH"
   if [ ! -e ~/.anyenv ]; then
     git clone https://github.com/riywo/anyenv ~/.anyenv
     eval "$(anyenv init -)"
+    git clone https://github.com/znz/anyenv-update.git $(anyenv root)/plugins/anyenv-update
   fi
   # install pyenv, pyenv-virtualenv, pyenv-update
   if [ ! -e ~/.anyenv/envs/pyenv ]; then
     anyenv install pyenv
     eval "$(anyenv init -)"
-    git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
     git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
   fi
   # install rbenv
   if [ ! -e ~/.anyenv/envs/rbenv ]; then
     anyenv install rbenv
     eval "$(anyenv init -)"
-    git clone https://github.com/rkh/rbenv-update.git "$(rbenv root)/plugins/rbenv-update"
   fi
   # install ndenv
   if [ ! -e ~/.anyenv/envs/ndenv ]; then
     anyenv install ndenv
     eval "$(anyenv init -)"
   fi
+
+}
+
+# install packages - for macos
+install_macos() {
+  # install homebrew
+  if [ ! -e /usr/local/bin/brew ]; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
+
+  install_pkg_anyenv
 }
 
 update_macos() {
-  # update pyenv, rbenv
-  pyenv update
-  rbenv update
+  # update anyenv
+  anyenv update
 }
 
+# install packages - for ubuntu
+install_ubuntu() {
+  install_pkg_anyenv
+}
+
+update_ubuntu() {
+  # update anyenv
+  anyenv update
+}
+
+# install packages - for msys2
 install_msys2() {
   # install packages
   pacman -S --needed --noconfirm tmux winpty diffutils
 }
 
+# main routine
 case $1 in
   deploy)
     deploy
@@ -90,6 +110,9 @@ case $1 in
     if [ ${OSTYPE} == "macos" ]; then
       install_macos
       update_macos
+    elif [ ${OSTYPE} == "ubuntu" ]; then
+      install_ubuntu
+      update_ubuntu
     elif [ ${OSTYPE} == "msys2" ]; then
       install_msys2
     fi
@@ -97,8 +120,10 @@ case $1 in
   update)
     if [ ${OSTYPE} == "macos" ]; then
       update_macos
+    elif [ ${OSTYPE} == "ubuntu" ]; then
+      update_ubuntu
     fi
     ;;
   *)
-    echo "usage: dotfiles/setup [deploy|install]"
+    echo "usage: dotfiles/setup [deploy|install|update]"
 esac
