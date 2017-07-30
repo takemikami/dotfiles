@@ -17,6 +17,7 @@ deploy() {
 
     # skip ignore path
     [[ ${f} = ".git" ]] && continue
+    [[ ! -f ${f} ]] && continue
 
     # check os type
     os_ext=""
@@ -40,22 +41,57 @@ deploy() {
       echo "link $DOTFILES_HOME/$f -> ~/$fname"
     fi
   done
+
+  for d in .config; do
+    for f in `find $d`; do
+
+      # skip ignore path
+      [[ ! -f ${f} ]] && continue
+
+      # check os type
+      os_ext=""
+      fname=$f
+      if [[ $f =~ ^(.*)-(.*)$ ]]; then
+        fname=${BASH_REMATCH[1]}
+        os_ext=${BASH_REMATCH[2]}
+      fi
+      if [ ${#os_ext} -ne 0 ] && [ ! ${os_ext} == ${OSTYPE} ]; then
+        continue
+      fi
+      if [ ${#os_ext} -eq 0 ] && [ -e $DOTFILES_HOME/$fname-${OSTYPE} ]; then
+        continue
+      fi
+
+      # create symbolic link
+      if [ -e ~/$fname ]; then
+        echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
+      else
+        ln -s "$DOTFILES_HOME/$f" "~/$fname"
+        echo "link $DOTFILES_HOME/$f -> ~/$fname"
+      fi
+    done
+  done
+
 }
 
 # install packages
 install_pkg_anyenv() {
-  # install anyenv
+  # install anyenv, anyenv-update
   export PATH="$HOME/.anyenv/bin:$PATH"
   if [ ! -e ~/.anyenv ]; then
     git clone https://github.com/riywo/anyenv ~/.anyenv
     eval "$(anyenv init -)"
     git clone https://github.com/znz/anyenv-update.git $(anyenv root)/plugins/anyenv-update
   fi
-  # install pyenv, pyenv-virtualenv, pyenv-update
+  # install pyenv, pyenv-virtualenv, anaconda(latest)
   if [ ! -e ~/.anyenv/envs/pyenv ]; then
     anyenv install pyenv
     eval "$(anyenv init -)"
     git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+  fi
+  if [ `pyenv versions | grep anaconda | wc -l` -lt 1 ]; then
+    last_anaconda=`pyenv install --list | grep anaconda | sort -r | head -1`
+    pyenv install $last_anaconda
   fi
   # install rbenv
   if [ ! -e ~/.anyenv/envs/rbenv ]; then
@@ -72,6 +108,9 @@ install_pkg_anyenv() {
 
 # install packages - for macos
 install_macos() {
+  # install xcode command line tools
+  xcode-select --install
+
   # install homebrew
   if [ ! -e /usr/local/bin/brew ]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -80,25 +119,15 @@ install_macos() {
   install_pkg_anyenv
 }
 
-update_macos() {
-  # update anyenv
-  anyenv update
-}
-
 # install packages - for ubuntu
 install_ubuntu() {
   install_pkg_anyenv
 }
 
-update_ubuntu() {
-  # update anyenv
-  anyenv update
-}
-
 # install packages - for msys2
 install_msys2() {
   # install packages
-  pacman -S --needed --noconfirm tmux winpty diffutils
+  pacman -S --needed --noconfirm git tmux winpty diffutils
 }
 
 # main routine
@@ -109,21 +138,12 @@ case $1 in
   install)
     if [ ${OSTYPE} == "macos" ]; then
       install_macos
-      update_macos
     elif [ ${OSTYPE} == "ubuntu" ]; then
       install_ubuntu
-      update_ubuntu
     elif [ ${OSTYPE} == "msys2" ]; then
       install_msys2
     fi
     ;;
-  update)
-    if [ ${OSTYPE} == "macos" ]; then
-      update_macos
-    elif [ ${OSTYPE} == "ubuntu" ]; then
-      update_ubuntu
-    fi
-    ;;
   *)
-    echo "usage: dotfiles/setup [deploy|install|update]"
+    echo "usage: dotfiles/setup [deploy|install]"
 esac

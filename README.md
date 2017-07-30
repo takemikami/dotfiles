@@ -16,7 +16,6 @@ This dotfiles for following environments:
 
 - dotfiles/setup deploy - link dotfiles
 - dotfiles/setup install - install software
-- dotfiles/setup update - update software
 
 ## quick setup
 
