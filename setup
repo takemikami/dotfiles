@@ -42,7 +42,7 @@ deploy() {
     fi
   done
 
-  for d in .config; do
+  for d in .config .local; do
     for f in `find $d`; do
 
       # skip ignore path
@@ -66,7 +66,7 @@ deploy() {
       if [ -e ~/$fname ]; then
         echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
       else
-        ln -s "$DOTFILES_HOME/$f" "~/$fname"
+        ln -s "$DOTFILES_HOME/$f" ~/$fname
         echo "link $DOTFILES_HOME/$f -> ~/$fname"
       fi
     done
@@ -109,14 +109,25 @@ install_pkg_anyenv() {
 # install packages - for macos
 install_macos() {
   # install xcode command line tools
-  xcode-select --install
+  xcode_path=`xcode-select -p`
+  if [ ! -e $xcode_path ]; then
+    xcode-select --install
+  fi
 
   # install homebrew
   if [ ! -e /usr/local/bin/brew ]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 
+  # install anyenv
   install_pkg_anyenv
+
+  # install hadoop & spark
+  brew install mariadb
+  brew install hadoop
+  brew install hive
+  brew install apache-spark
+  brew install mahout
 }
 
 # install packages - for ubuntu

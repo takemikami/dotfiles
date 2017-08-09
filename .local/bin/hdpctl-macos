@@ -1,0 +1,158 @@
+#!/bin/bash
+
+init_hadoop() {
+  echo "init hadoop"
+  brew install pwgen
+
+  # init hdfs
+  sudo mkdir -p /var/lib/hdfs/{name,data}
+  sudo chown -R `whoami`:wheel /var/lib/hdfs
+  rm -rf /var/lib/hdfs/name/*
+  rm -rf /var/lib/hdfs/data/*
+
+cat << EOS > $HADOOP_CONF_DIR/core-site.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9001</value>
+    </property>
+</configuration>
+EOS
+
+cat << EOS > $HADOOP_CONF_DIR/hdfs-site.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>dfs.name.dir</name>
+        <value>/var/lib/hdfs/name</value>
+    </property>
+    <property>
+        <name>dfs.data.dir</name>
+        <value>/var/lib/hdfs/data</value>
+    </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+EOS
+
+  hadoop namenode -format
+
+  # init hive
+  cd $HIVE_HOME/lib && [ ! -e mysql-connector-java-5.1.43.jar ] && wget http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.43/mysql-connector-java-5.1.43.jar
+
+  METASTORE_DB_PASSWD=`pwgen 16 1`
+
+cat << EOS > $HIVE_HOME/conf/hive-site.xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value><![CDATA[jdbc:mysql://localhost/hive_metastore?autoReconnect=true&useSSL=false]]></value>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>com.mysql.jdbc.Driver</value>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionUserName</name>
+    <value>hive</value>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>$METASTORE_DB_PASSWD</value>
+  </property>
+  <property>
+    <name>datanucleus.fixedDatastore</name>
+    <value>false</value>
+  </property>
+  <property>
+      <name>hive.exec.local.scratchdir</name>
+      <value>/tmp/hive</value>
+  </property>
+  <property>
+    <name>hive.downloaded.resources.dir</name>
+    <value>/tmp/hive</value>
+  </property>
+  <property>
+    <name>hive.querylog.location</name>
+    <value>/tmp/hive</value>
+  </property>
+</configuration>
+EOS
+
+mysql -uroot -p <<EOF
+drop database hive_metastore;
+drop user 'hive'@'localhost';
+create database hive_metastore default character set 'latin1';
+use hive_metastore;
+create user 'hive'@'localhost' identified by '$METASTORE_DB_PASSWD';
+grant select, insert, update, delete, drop, alter, create, index, references on hive_metastore.* to 'hive'@'localhost';
+EOF
+
+  $HIVE_HOME/bin/schematool -dbType mysql -initSchema
+
+  # init spark
+  ln -sf $HIVE_HOME/conf/hive-site.xml $SPARK_HOME/conf/hive-site.xml
+
+cat << EOS > $SPARK_HOME/conf/spark-defaults.conf
+spark.driver.extraClassPath $HIVE_HOME/lib/mysql-connector-java-5.1.43.jar
+EOS
+
+cat << EOS > $SPARK_HOME/conf/log4j.properties
+# Set everything to be logged to the console
+log4j.rootCategory=WARN, console
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.target=System.err
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+
+# Set the default spark-shell log level to WARN. When running the spark-shell, the
+# log level for this class is used to overwrite the root logger's log level, so that
+# the user can have different defaults for the shell and regular Spark apps.
+log4j.logger.org.apache.spark.repl.Main=WARN
+
+# Settings to quiet third party logs that are too verbose
+log4j.logger.org.spark_project.jetty=WARN
+log4j.logger.org.spark_project.jetty.util.component.AbstractLifeCycle=ERROR
+log4j.logger.org.apache.spark.repl.SparkIMain$exprTyper=INFO
+log4j.logger.org.apache.spark.repl.SparkILoop$SparkILoopInterpreter=INFO
+log4j.logger.org.apache.parquet=ERROR
+log4j.logger.parquet=ERROR
+
+# SPARK-9183: Settings to avoid annoying messages when looking up nonexistent UDFs in SparkSQL with Hive support
+log4j.logger.org.apache.hadoop.hive.metastore.RetryingHMSHandler=FATAL
+log4j.logger.org.apache.hadoop.hive.ql.exec.FunctionRegistry=ERROR
+EOS
+
+}
+
+start_hadoop() {
+  echo "start hadoop"
+  $HADOOP_HOME/sbin/start-dfs.sh
+}
+
+stop_hadoop() {
+  echo "stop hadoop"
+  $HADOOP_HOME/sbin/stop-dfs.sh
+}
+
+# main routine
+case $1 in
+  init)
+    init_hadoop
+    ;;
+  start)
+    start_hadoop
+    ;;
+  stop)
+    stop_hadoop
+    ;;
+  *)
+    echo "usage: hdpctl [start|stop|init]"
+esac
