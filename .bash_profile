@@ -33,6 +33,7 @@ if [[ $(uname) =~ "Darwin" ]]; then
 	export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 	export HIVE_HOME=$(brew_home_path hive)/libexec
 	export SPARK_HOME=$(brew_home_path apache-spark)/libexec
+	export MAHOUT_HOME=$(brew_home_path mahout)/libexec
 
 	# browser for jupyter notebook open
 	export BROWSER=open
