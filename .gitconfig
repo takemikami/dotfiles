@@ -5,5 +5,3 @@
 [alias]
   logall = log --branches --decorate=full
   logfull = log --pretty=fuller --decorate=full
-[core]
-  excludesfile = /Users/take/.gitignore
