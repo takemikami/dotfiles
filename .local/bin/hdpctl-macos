@@ -2,7 +2,6 @@
 
 init_hadoop() {
   echo "init hadoop"
-  brew install pwgen
 
   # init hdfs
   sudo mkdir -p /var/lib/hdfs/{name,data}
@@ -83,16 +82,21 @@ cat << EOS > $HIVE_HOME/conf/hive-site.xml
     <name>hive.querylog.location</name>
     <value>/tmp/hive</value>
   </property>
+  <property>
+    <name>hive.execution.engine</name>
+    <value>mr</value>
+  </property>
 </configuration>
 EOS
 
 mysql -uroot -p <<EOF
-drop database hive_metastore;
-drop user 'hive'@'localhost';
+drop database if exists hive_metastore;
+drop user if exists 'hive'@'localhost';
 create database hive_metastore default character set 'latin1';
 use hive_metastore;
 create user 'hive'@'localhost' identified by '$METASTORE_DB_PASSWD';
 grant select, insert, update, delete, drop, alter, create, index, references on hive_metastore.* to 'hive'@'localhost';
+grant create routine, alter routine on hive_metastore.* to 'hive'@'localhost';
 EOF
 
   $HIVE_HOME/bin/schematool -dbType mysql -initSchema

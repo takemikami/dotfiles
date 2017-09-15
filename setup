@@ -42,7 +42,7 @@ deploy() {
     fi
   done
 
-  for d in .config .local; do
+  for d in .config .local .ssh; do
     for f in `find $d`; do
 
       # skip ignore path
@@ -123,11 +123,16 @@ install_macos() {
   install_pkg_anyenv
 
   # install hadoop & spark
+  brew install wget
+  brew install pwgen
   brew install mariadb
   brew install hadoop
   brew install hive
   brew install apache-spark
   brew install mahout
+  brew install gradle
+  brew install sbt
+  brew tap homebrew/services
 }
 
 # install packages - for ubuntu
