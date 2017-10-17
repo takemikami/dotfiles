@@ -21,6 +21,11 @@ eval "$(anyenv init -)"
 # node modules bin
 export PATH=$PATH:./node_modules/.bin
 
+# conscript
+export CONSCRIPT_HOME="$HOME/.conscript"
+export CONSCRIPT_OPTS="-Dfile.encoding=UTF-8"
+export PATH=$CONSCRIPT_HOME/bin:$PATH
+
 # for macos
 if [[ $(uname) =~ "Darwin" ]]; then
         # set java home
