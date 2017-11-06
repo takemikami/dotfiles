@@ -137,8 +137,12 @@ install_macos() {
   brew tap homebrew/services
 
   # install gcloud client
-  curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
-  mv ~/google-cloud-sdk ~/.google-cloud-sdk
+  if [ ! -d ~/.google-cloud-sdk ]; then
+    curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
+    mv ~/google-cloud-sdk ~/.google-cloud-sdk
+  fi
+  gcloud components install app-engine-python --quiet
+  gcloud components install app-engine-python-extras --quiet
 }
 
 # install packages - for ubuntu
