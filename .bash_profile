@@ -5,11 +5,6 @@ if [ -f ~/.bashrc ]; then
 	. ~/.bashrc
 fi
 
-# Get the aliases and functions
-if [ -f ~/.bash_profile_local ]; then
-	. ~/.bash_profile_local
-fi
-
 # User specific environment and startup programs
 PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
@@ -28,6 +23,7 @@ export PATH=$CONSCRIPT_HOME/bin:$PATH
 
 # gcloud sdk
 export GLOUD_SDK_HOME="$HOME/.google-cloud-sdk"
+export GAE_SDK_ROOT="$GLOUD_SDK_HOME/platform/google_appengine"
 export CLOUDSDK_PYTHON=/usr/bin/python
 export PATH=$GLOUD_SDK_HOME/bin:$PATH
 
@@ -53,3 +49,9 @@ if [[ $(uname) =~ "Darwin" ]]; then
 	export BROWSER=open
 
 fi
+
+# load local settings
+if [ -f ~/.bash_profile_local ]; then
+        . ~/.bash_profile_local
+fi
+

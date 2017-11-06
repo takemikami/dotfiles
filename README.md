@@ -22,6 +22,7 @@ This dotfiles for following environments:
 ```
 cd ~
 git clone git@github.com:takemikami/dotfiles.git
-dotfiles/setup install
 dotfiles/setup deploy
+source ~/.bash_profile
+dotfiles/setup install
 ```

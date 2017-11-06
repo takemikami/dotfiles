@@ -136,6 +136,9 @@ install_macos() {
   brew install sbt
   brew tap homebrew/services
 
+  # install packer
+  brew install packer
+
   # install gcloud client
   if [ ! -d ~/.google-cloud-sdk ]; then
     curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
@@ -143,6 +146,10 @@ install_macos() {
   fi
   gcloud components install app-engine-python --quiet
   gcloud components install app-engine-python-extras --quiet
+  # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
+  if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
+    cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
+  fi
 }
 
 # install packages - for ubuntu
