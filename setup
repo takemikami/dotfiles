@@ -135,6 +135,10 @@ install_macos() {
   brew install gradle
   brew install sbt
   brew tap homebrew/services
+
+  # install gcloud client
+  curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
+  mv ~/google-cloud-sdk ~/.google-cloud-sdk
 }
 
 # install packages - for ubuntu
