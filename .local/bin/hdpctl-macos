@@ -1,5 +1,14 @@
 #!/bin/bash
 
+install_hadoop() {
+  brew install mariadb
+  brew install hadoop
+  brew install hive
+  brew install apache-spark
+  brew install mahout
+  brew tap homebrew/services
+}
+
 init_hadoop() {
   echo "init hadoop"
 
@@ -148,6 +157,9 @@ stop_hadoop() {
 
 # main routine
 case $1 in
+  install)
+    install_hadoop
+    ;;
   init)
     init_hadoop
     ;;
@@ -158,5 +170,5 @@ case $1 in
     stop_hadoop
     ;;
   *)
-    echo "usage: hdpctl [start|stop|init]"
+    echo "usage: hdpctl [start|stop|init|install]"
 esac

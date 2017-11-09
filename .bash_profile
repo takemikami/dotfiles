@@ -21,10 +21,13 @@ export CONSCRIPT_HOME="$HOME/.conscript"
 export CONSCRIPT_OPTS="-Dfile.encoding=UTF-8"
 export PATH=$CONSCRIPT_HOME/bin:$PATH
 
+# embulk
+export PATH=$HOME/.embulk/bin:$PATH
+
 # gcloud sdk
 export GLOUD_SDK_HOME="$HOME/.google-cloud-sdk"
 export GAE_SDK_ROOT="$GLOUD_SDK_HOME/platform/google_appengine"
-export CLOUDSDK_PYTHON=/usr/bin/python
+export CLOUDSDK_PYTHON=$HOME/.anyenv/envs/pyenv/shims/python
 export PATH=$GLOUD_SDK_HOME/bin:$PATH
 
 # for macos
@@ -54,4 +57,3 @@ fi
 if [ -f ~/.bash_profile_local ]; then
         . ~/.bash_profile_local
 fi
-

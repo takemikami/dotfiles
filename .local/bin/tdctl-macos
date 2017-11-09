@@ -1,0 +1,21 @@
+#!/bin/bash
+
+install_embulk() {
+  curl --create-dirs -o ~/.embulk/bin/embulk -L "https://dl.embulk.org/embulk-latest.jar"
+  chmod +x ~/.embulk/bin/embulk
+}
+
+install_digdag() {
+  curl --create-dirs -o ~/.local/bin/digdag --create-dirs -L "https://dl.digdag.io/digdag-latest"
+  chmod +x ~/.local/bin/digdag
+}
+
+# main routine
+case $1 in
+  install)
+    install_embulk
+    install_digdag
+    ;;
+  *)
+    echo "usage: tdctl [install]"
+esac

@@ -104,6 +104,13 @@ install_pkg_anyenv() {
     eval "$(anyenv init -)"
     git clone https://github.com/pine/ndenv-yarn-install.git "$(ndenv root)/plugins/ndenv-yarn-install"
   fi
+  # install erlenv & exenv
+  if [ ! -e ~/.anyenv/envs/erlenv ]; then
+    anyenv install erlenv
+  fi
+  if [ ! -e ~/.anyenv/envs/exenv ]; then
+    anyenv install exenv
+  fi
 
 }
 
@@ -128,10 +135,6 @@ install_macos() {
   brew install wget
   brew install pwgen
   brew install mariadb
-  brew install hadoop
-  brew install hive
-  brew install apache-spark
-  brew install mahout
   brew install gradle
   brew install sbt
   brew tap homebrew/services
@@ -147,9 +150,13 @@ install_macos() {
   gcloud components install app-engine-python --quiet
   gcloud components install app-engine-python-extras --quiet
   # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
+  GAE_SDK_ROOT=$HOME/.google-cloud-sdk/platform/google_appengine
   if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
     cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
   fi
+
+  # install heroku cli
+  brew install heroku/brew/heroku
 }
 
 # install packages - for ubuntu
