@@ -54,6 +54,4 @@ if [[ $(uname) =~ "Darwin" ]]; then
 fi
 
 # load local settings
-if [ -f ~/.bash_profile_local ]; then
-        . ~/.bash_profile_local
-fi
+for f in `find ~/.bash_profile.d/*`; do . $f ; done
