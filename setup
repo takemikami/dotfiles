@@ -42,7 +42,7 @@ deploy() {
     fi
   done
 
-  for d in .config .local .ssh; do
+  for d in .config .local .ssh .bash_profile.d; do
     for f in `find $d`; do
 
       # skip ignore path
