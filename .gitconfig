@@ -3,5 +3,11 @@
   email = takeshi.mikami@gmail.com
 
 [alias]
-  logall = log --branches --decorate=full
-  logfull = log --pretty=fuller --decorate=full
+  st = status
+  logfull = log --pretty=fuller
+  logall = log --branches --pretty=fuller --decorate=full
+  push-origin = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push origin $CRR_BRANCH
+  push-fork = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push fork $CRR_BRANCH
+  catchup = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git checkout master && git pull && git checkout $CRR_BRANCH
+  catchup-develop = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git checkout develop && git pull && git checkout $CRR_BRANCH
+  fix-date = rebase HEAD~1 --ignore-date
