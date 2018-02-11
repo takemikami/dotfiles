@@ -104,17 +104,28 @@ install_pkg_anyenv() {
     eval "$(anyenv init -)"
     git clone https://github.com/pine/ndenv-yarn-install.git "$(ndenv root)/plugins/ndenv-yarn-install"
   fi
-  # install erlenv & exenv
-  if [ ! -e ~/.anyenv/envs/erlenv ]; then
-    anyenv install erlenv
+  # install goenv
+  if [ ! -e ~/.anyenv/envs/goenv ]; then
+    anyenv install goenv
   fi
-  if [ ! -e ~/.anyenv/envs/exenv ]; then
-    anyenv install exenv
-  fi
-
 }
 
 # install packages - for macos
+install_macos_pkg_gcloud() {
+  # install gcloud client
+  if [ ! -d ~/.google-cloud-sdk ]; then
+    curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
+    mv ~/google-cloud-sdk ~/.google-cloud-sdk
+  fi
+  gcloud components install app-engine-python --quiet
+  gcloud components install app-engine-python-extras --quiet
+  gcloud components install app-engine-go --quiet
+  # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
+  GAE_SDK_ROOT=$HOME/.google-cloud-sdk/platform/google_appengine
+  if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
+    cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
+  fi
+}
 install_macos() {
   # install xcode command line tools
   xcode_path=`xcode-select -p`
@@ -131,29 +142,21 @@ install_macos() {
   install_pkg_anyenv
   brew install watchman
 
-  # install hadoop & spark
-  brew install wget
-  brew install pwgen
-  brew install mariadb
+  # install build tools / java & scala
   brew install gradle
   brew install sbt
   brew tap homebrew/services
 
+  # install utils
+  brew install wget
+  brew install pwgen
+  brew install mariadb
+
   # install packer
   brew install packer
 
-  # install gcloud client
-  if [ ! -d ~/.google-cloud-sdk ]; then
-    curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
-    mv ~/google-cloud-sdk ~/.google-cloud-sdk
-  fi
-  gcloud components install app-engine-python --quiet
-  gcloud components install app-engine-python-extras --quiet
-  # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
-  GAE_SDK_ROOT=$HOME/.google-cloud-sdk/platform/google_appengine
-  if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
-    cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
-  fi
+  # install gcloud cli
+  install_macos_pkg_gcloud
 
   # install heroku cli
   brew install heroku/brew/heroku
@@ -170,6 +173,13 @@ install_msys2() {
   pacman -S --needed --noconfirm git tmux winpty diffutils
 }
 
+# upgrade packages - for macos
+upgrade_macos() {
+  brew upgrade
+  anyenv update
+}
+
+
 # main routine
 case $1 in
   deploy)
@@ -184,6 +194,11 @@ case $1 in
       install_msys2
     fi
     ;;
+  upgrade)
+    if [ ${OSTYPE} == "macos" ]; then
+      upgrade_macos
+    fi
+    ;;
   *)
-    echo "usage: dotfiles/setup [deploy|install]"
+    echo "usage: dotfiles/setup [deploy|install|upgrade]"
 esac
