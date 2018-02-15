@@ -175,8 +175,14 @@ install_msys2() {
 
 # upgrade packages - for macos
 upgrade_macos() {
-  brew upgrade
+  brew upgrade --cleanup
   anyenv update
+}
+
+# clean cache - for macos
+clean_macos() {
+  brew cleanup -s
+  brew cask cleanup --outdated
 }
 
 
@@ -199,6 +205,11 @@ case $1 in
       upgrade_macos
     fi
     ;;
+  clean)
+    if [ ${OSTYPE} == "macos" ]; then
+      clean_macos
+    fi
+    ;;
   *)
-    echo "usage: dotfiles/setup [deploy|install|upgrade]"
+    echo "usage: dotfiles/setup [deploy|install|upgrade|clean]"
 esac
