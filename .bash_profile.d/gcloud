@@ -5,4 +5,4 @@ export CLOUDSDK_PYTHON=$HOME/.anyenv/envs/pyenv/shims/python
 export PATH=$GLOUD_SDK_HOME/bin:$PATH
 
 # gae java sdk
-export APPENGINE_HOME=$HOME/.appengine-java-sdk
+export APPENGINE_HOME=$GAE_SDK_ROOT/google/appengine/tools/java/

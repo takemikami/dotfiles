@@ -120,18 +120,11 @@ install_macos_pkg_gcloud() {
   gcloud components install app-engine-python --quiet
   gcloud components install app-engine-python-extras --quiet
   gcloud components install app-engine-go --quiet
+  gcloud components install app-engine-java --quiet
   # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
   GAE_SDK_ROOT=$HOME/.google-cloud-sdk/platform/google_appengine
   if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
     cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
-  fi
-
-  # install gae java sdk
-  if [ ! -d ~/.appengine-java-sdk ]; then
-    curl https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.54.zip -o ~/appengine-java-sdk-1.9.54.zip
-    unzip ~/appengine-java-sdk-1.9.54.zip -d ~/
-    rm ~/appengine-java-sdk-1.9.54.zip
-    mv ~/appengine-java-sdk-1.9.54 ~/.appengine-java-sdk
   fi
 }
 install_macos() {
@@ -185,6 +178,7 @@ install_msys2() {
 upgrade_macos() {
   brew upgrade --cleanup
   anyenv update
+  gcloud components update --quiet
 }
 
 # clean cache - for macos
