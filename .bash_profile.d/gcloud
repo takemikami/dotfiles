@@ -3,6 +3,7 @@ export GLOUD_SDK_HOME="$HOME/.google-cloud-sdk"
 export GAE_SDK_ROOT="$GLOUD_SDK_HOME/platform/google_appengine"
 export CLOUDSDK_PYTHON=$HOME/.anyenv/envs/pyenv/shims/python
 export PATH=$GLOUD_SDK_HOME/bin:$PATH
+export CLOUDSDK_PYTHON_SITEPACKAGES=1
 
 # gae java sdk
 export APPENGINE_HOME=$GAE_SDK_ROOT/google/appengine/tools/java/
