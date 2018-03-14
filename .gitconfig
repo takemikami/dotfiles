@@ -4,6 +4,8 @@
 
 [alias]
   st = status
+  co = checkout
+  br = branch
   logfull = log --pretty=fuller
   logall = log --branches --pretty=fuller --decorate=full
   push-origin = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push origin $CRR_BRANCH
