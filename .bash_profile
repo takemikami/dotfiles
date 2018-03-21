@@ -16,6 +16,9 @@ export CONSCRIPT_HOME="$HOME/.conscript"
 export CONSCRIPT_OPTS="-Dfile.encoding=UTF-8"
 export PATH=$CONSCRIPT_HOME/bin:$PATH
 
+# calibre
+export PATH=$PATH:/Applications/calibre.app/Contents/MacOS/
+
 # embulk
 export PATH=$HOME/.embulk/bin:$PATH
 
