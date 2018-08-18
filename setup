@@ -114,7 +114,7 @@ install_pkg_anyenv() {
 install_macos_pkg_gcloud() {
   # install gcloud client
   if [ ! -d ~/.google-cloud-sdk ]; then
-    curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-170.0.1-darwin-x86_64.tar.gz | tar zx -C ~/
+    curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz | tar zx -C ~/
     mv ~/google-cloud-sdk ~/.google-cloud-sdk
   fi
   gcloud components install app-engine-python --quiet
@@ -154,7 +154,7 @@ install_macos() {
   brew install mariadb
 
   # install packer
-  brew install packer
+  #brew install packer
 
   # install gcloud cli
   install_macos_pkg_gcloud
