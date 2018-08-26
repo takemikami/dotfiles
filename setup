@@ -42,7 +42,7 @@ deploy() {
     fi
   done
 
-  for d in .config .local .ssh .bash_profile.d; do
+  for d in .config .local .ssh .atom .bash_profile.d; do
     for f in `find $d`; do
 
       # skip ignore path
@@ -66,6 +66,7 @@ deploy() {
       if [ -e ~/$fname ]; then
         echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
       else
+        mkdir -p $(dirname ~/$fname)
         ln -s "$DOTFILES_HOME/$f" ~/$fname
         echo "link $DOTFILES_HOME/$f -> ~/$fname"
       fi
