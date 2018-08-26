@@ -142,21 +142,26 @@ install_macos() {
   # install build tools / java & scala
   brew install gradle
   brew install sbt
-  brew tap homebrew/services
+
+  # install ediror & IDE
+  brew cask install atom
+  brew cask install intellij-idea
 
   # install utils
+  brew tap homebrew/services
   brew install wget
   brew install pwgen
   brew install mariadb
 
+  # install docker
+  brew cask install docker
+
   # install packer
   #brew install packer
 
-  # install gcloud cli
-  install_macos_pkg_gcloud
-
-  # install heroku cli
-  brew install heroku/brew/heroku
+  # install cloud cli / google, heroku
+  #install_macos_pkg_gcloud
+  #brew install heroku/brew/heroku
 }
 
 # install packages - for ubuntu
