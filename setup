@@ -145,6 +145,7 @@ install_macos() {
   brew install sbt
 
   # install ediror & IDE
+  brew cask install mi
   brew cask install atom
   brew cask install intellij-idea
 
@@ -156,6 +157,10 @@ install_macos() {
 
   # install docker
   brew cask install docker
+
+  # install R
+  brew install r
+  brew cask install rstudio
 
   # install packer
   #brew install packer
