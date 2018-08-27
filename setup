@@ -159,8 +159,8 @@ install_macos() {
   brew cask install docker
 
   # install R
-  brew install r
-  brew cask install rstudio
+  #brew install r
+  #brew cask install rstudio
 
   # install packer
   #brew install packer
@@ -168,6 +168,9 @@ install_macos() {
   # install cloud cli / google, heroku
   #install_macos_pkg_gcloud
   #brew install heroku/brew/heroku
+
+  # adobe cs6 trick
+  #sudo mkdir -p /System/Library/Java/JavaVirtualMachines/1.6.0.jdk /System/Library/Java/Support/Deploy.bundle
 }
 
 # install packages - for ubuntu
