@@ -124,6 +124,18 @@ install_macos_pkg_gcloud() {
     cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
   fi
 }
+install_macos_pkg_nlp() {
+  # install mecab
+  brew install mecab
+  brew install mecab-ipadic
+
+  # install neologd
+  mkdir -p ~/.dotfiles
+  if [ ! -d ~/.dotfiles/mecab-ipadic-neologd ]; then
+    git clone --depth 1 git@github.com:neologd/mecab-ipadic-neologd.git ~/.dotfiles/mecab-ipadic-neologd
+    ~/.dotfiles/mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y -u -a
+  fi
+}
 install_macos() {
   # install xcode command line tools
   xcode_path=`xcode-select -p`
@@ -147,7 +159,7 @@ install_macos() {
   # install ediror & IDE
   brew cask install mi
   brew cask install atom
-  brew cask install intellij-idea
+  #brew cask install intellij-idea
 
   # install utils
   brew tap homebrew/services
@@ -161,6 +173,9 @@ install_macos() {
   # install R
   #brew install r
   #brew cask install rstudio
+
+  # install packages for Natural Language Processing
+  install_macos_pkg_nlp
 
   # install packer
   #brew install packer

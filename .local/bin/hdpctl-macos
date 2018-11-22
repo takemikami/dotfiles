@@ -4,6 +4,7 @@ install_hadoop() {
   brew install mariadb
   brew install hadoop
   brew install hive
+  brew cask install homebrew/cask-versions/java8
   brew install apache-spark
   brew install mahout
   brew tap homebrew/services
