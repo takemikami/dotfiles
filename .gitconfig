@@ -16,3 +16,5 @@
 
 [diff "wordx"]
   textconv = docx2txt
+[diff "powerpointx"]
+  textconv = pptx2txt
