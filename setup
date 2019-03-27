@@ -166,6 +166,7 @@ install_macos() {
   brew install wget
   brew install pwgen
   brew install mariadb
+  brew install docx2txt
 
   # install docker
   brew cask install docker

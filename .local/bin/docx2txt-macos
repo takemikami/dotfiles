@@ -1,0 +1,2 @@
+#!/bin/bash
+perl /usr/local/opt/docx2txt/bin/docx2txt.pl $1 -
