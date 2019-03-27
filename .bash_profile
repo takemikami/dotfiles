@@ -11,6 +11,9 @@ PATH=$PATH:$HOME/.local/bin:$HOME/bin
 # node modules bin
 export PATH=$PATH:./node_modules/.bin
 
+# perl modules path
+export PERL5LIB=$HOME/perl5/lib/perl5/
+
 # conscript
 export CONSCRIPT_HOME="$HOME/.conscript"
 export CONSCRIPT_OPTS="-Dfile.encoding=UTF-8"

@@ -18,3 +18,5 @@
   textconv = docx2txt
 [diff "powerpointx"]
   textconv = pptx2txt
+[diff "excelx"]
+  textconv = git-xlsx-textconv

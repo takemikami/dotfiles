@@ -171,6 +171,10 @@ install_macos() {
   brew install docx2txt
   curl -L https://raw.githubusercontent.com/welcheb/pptx2txt.sh/master/pptx2txt.sh > ~/.local/bin/pptx2txt
   chmod +x ~/.local/bin/pptx2txt
+  brew install cpanm
+  cpanm Spreadsheet::XLSX
+  curl -L https://raw.githubusercontent.com/yappo/p5-git-xlsx-textconv.pl/master/git-xlsx-textconv.pl > ~/.local/bin/git-xlsx-textconv
+  chmod +x ~/.local/bin/git-xlsx-textconv
 
   # install docker
   brew cask install docker
