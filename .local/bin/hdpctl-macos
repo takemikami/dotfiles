@@ -1,25 +1,39 @@
 #!/bin/bash
 
 install_hadoop() {
-  brew install mariadb
-  brew install hadoop
-  brew install hive
-  brew cask install homebrew/cask-versions/java8
-  brew install apache-spark
-  brew install mahout
-  brew tap homebrew/services
+  # brew install mariadb
+  # brew tap homebrew/services
+  # brew cask install homebrew/cask-versions/java8
+  # brew install hadoop
+  # brew install hive
+  # brew install apache-spark
+  # brew install mahout
+  mkdir -p ~/.apache-hadoop
+  cd ~/.apache-hadoop
+  if [[ ! -e ~/.apache-hadoop/hadoop-$HADOOP_VERSION ]]; then
+    wget http://ftp.yz.yamagata-u.ac.jp/pub/network/apache/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-${HADOOP_VERSION}.tar.gz
+    tar zxf hadoop-$HADOOP_VERSION.tar.gz
+  fi
+  if [[ ! -e ~/.apache-hadoop/apache-hive-${HIVE_VERSION}-bin ]]; then
+    wget http://ftp.jaist.ac.jp/pub/apache/hive/hive-$HIVE_VERSION/apache-hive-${HIVE_VERSION}-bin.tar.gz
+    tar zxf apache-hive-$HIVE_VERSION-bin.tar.gz
+  fi
+  if [[ ! -e ~/.apache-hadoop/spark-${SPARK_VERSION}-bin-hadoop2.7 ]]; then
+    wget http://ftp.kddilabs.jp/infosystems/apache/spark/spark-$SPARK_VERSION/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz
+    tar zxf spark-$SPARK_VERSION-bin-hadoop2.7.tgz
+  fi
 }
 
 init_hadoop() {
   echo "init hadoop"
+  stop_hadoop
 
   # init hdfs
-  sudo mkdir -p /var/lib/hdfs/{name,data}
-  sudo chown -R `whoami`:wheel /var/lib/hdfs
-  rm -rf /var/lib/hdfs/name/*
-  rm -rf /var/lib/hdfs/data/*
+  mkdir -p ~/.apache-hadoop/hdfs/{name,data}
+  rm -rf ~/.apache-hadoop/hdfs/name/*
+  rm -rf ~/.apache-hadoop/hdfs/data/*
 
-cat << EOS > $HADOOP_CONF_DIR/core-site.xml
+cat << EOS > $HADOOP_HOME/etc/hadoop/core-site.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
@@ -30,17 +44,17 @@ cat << EOS > $HADOOP_CONF_DIR/core-site.xml
 </configuration>
 EOS
 
-cat << EOS > $HADOOP_CONF_DIR/hdfs-site.xml
+cat << EOS > $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
     <property>
         <name>dfs.name.dir</name>
-        <value>/var/lib/hdfs/name</value>
+        <value>$HOME/.apache-hadoop/hdfs/name</value>
     </property>
     <property>
         <name>dfs.data.dir</name>
-        <value>/var/lib/hdfs/data</value>
+        <value>$HOME/.apache-hadoop/hdfs/data</value>
     </property>
     <property>
         <name>dfs.replication</name>
@@ -49,74 +63,75 @@ cat << EOS > $HADOOP_CONF_DIR/hdfs-site.xml
 </configuration>
 EOS
 
-  hadoop namenode -format
+  $HADOOP_HOME/bin/hadoop namenode -format
 
-  # init hive
-  cd $HIVE_HOME/lib && [ ! -e mysql-connector-java-5.1.43.jar ] && wget http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.43/mysql-connector-java-5.1.43.jar
-
-  METASTORE_DB_PASSWD=`pwgen 16 1`
-
-cat << EOS > $HIVE_HOME/conf/hive-site.xml
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<configuration>
-  <property>
-    <name>javax.jdo.option.ConnectionURL</name>
-    <value><![CDATA[jdbc:mysql://localhost/hive_metastore?autoReconnect=true&useSSL=false]]></value>
-  </property>
-  <property>
-    <name>javax.jdo.option.ConnectionDriverName</name>
-    <value>com.mysql.jdbc.Driver</value>
-  </property>
-  <property>
-    <name>javax.jdo.option.ConnectionUserName</name>
-    <value>hive</value>
-  </property>
-  <property>
-    <name>javax.jdo.option.ConnectionPassword</name>
-    <value>$METASTORE_DB_PASSWD</value>
-  </property>
-  <property>
-    <name>datanucleus.fixedDatastore</name>
-    <value>false</value>
-  </property>
-  <property>
-      <name>hive.exec.local.scratchdir</name>
-      <value>/tmp/hive</value>
-  </property>
-  <property>
-    <name>hive.downloaded.resources.dir</name>
-    <value>/tmp/hive</value>
-  </property>
-  <property>
-    <name>hive.querylog.location</name>
-    <value>/tmp/hive</value>
-  </property>
-  <property>
-    <name>hive.execution.engine</name>
-    <value>mr</value>
-  </property>
-</configuration>
-EOS
-
-mysql -uroot -p <<EOF
-drop database if exists hive_metastore;
-drop user if exists 'hive'@'localhost';
-create database hive_metastore default character set 'latin1';
-use hive_metastore;
-create user 'hive'@'localhost' identified by '$METASTORE_DB_PASSWD';
-grant select, insert, update, delete, drop, alter, create, index, references on hive_metastore.* to 'hive'@'localhost';
-grant create routine, alter routine on hive_metastore.* to 'hive'@'localhost';
-EOF
-
-  $HIVE_HOME/bin/schematool -dbType mysql -initSchema
+#   # init hive
+#   brew services start mariadb
+#   cd $HIVE_HOME/lib && [ ! -e mysql-connector-java-5.1.43.jar ] && wget http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.43/mysql-connector-java-5.1.43.jar
+#
+#   METASTORE_DB_PASSWD=`pwgen 16 1`
+#
+# cat << EOS > $HIVE_HOME/conf/hive-site.xml
+# <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+# <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+# <configuration>
+#   <property>
+#     <name>javax.jdo.option.ConnectionURL</name>
+#     <value><![CDATA[jdbc:mysql://localhost/hive_metastore?autoReconnect=true&useSSL=false]]></value>
+#   </property>
+#   <property>
+#     <name>javax.jdo.option.ConnectionDriverName</name>
+#     <value>com.mysql.jdbc.Driver</value>
+#   </property>
+#   <property>
+#     <name>javax.jdo.option.ConnectionUserName</name>
+#     <value>hive</value>
+#   </property>
+#   <property>
+#     <name>javax.jdo.option.ConnectionPassword</name>
+#     <value>$METASTORE_DB_PASSWD</value>
+#   </property>
+#   <property>
+#     <name>datanucleus.fixedDatastore</name>
+#     <value>false</value>
+#   </property>
+#   <property>
+#       <name>hive.exec.local.scratchdir</name>
+#       <value>/tmp/hive</value>
+#   </property>
+#   <property>
+#     <name>hive.downloaded.resources.dir</name>
+#     <value>/tmp/hive</value>
+#   </property>
+#   <property>
+#     <name>hive.querylog.location</name>
+#     <value>/tmp/hive</value>
+#   </property>
+#   <property>
+#     <name>hive.execution.engine</name>
+#     <value>mr</value>
+#   </property>
+# </configuration>
+# EOS
+#
+# mysql -uroot <<EOF
+# drop database if exists hive_metastore;
+# drop user if exists 'hive'@'localhost';
+# create database hive_metastore default character set 'latin1';
+# use hive_metastore;
+# create user 'hive'@'localhost' identified by '$METASTORE_DB_PASSWD';
+# grant select, insert, update, delete, drop, alter, create, index, references on hive_metastore.* to 'hive'@'localhost';
+# grant create routine, alter routine on hive_metastore.* to 'hive'@'localhost';
+# EOF
+#
+#   $HIVE_HOME/bin/schematool -dbType mysql -initSchema
 
   # init spark
-  ln -sf $HIVE_HOME/conf/hive-site.xml $SPARK_HOME/conf/hive-site.xml
+  # ln -sf $HIVE_HOME/conf/hive-site.xml $SPARK_HOME/conf/hive-site.xml
 
-cat << EOS > $SPARK_HOME/conf/spark-defaults.conf
-spark.driver.extraClassPath $HIVE_HOME/lib/mysql-connector-java-5.1.43.jar
-EOS
+# cat << EOS > $SPARK_HOME/conf/spark-defaults.conf
+# spark.driver.extraClassPath $HIVE_HOME/lib/mysql-connector-java-5.1.43.jar
+# EOS
 
 cat << EOS > $SPARK_HOME/conf/log4j.properties
 # Set everything to be logged to the console
@@ -149,10 +164,12 @@ EOS
 start_hadoop() {
   echo "start hadoop"
   $HADOOP_HOME/sbin/start-dfs.sh
+  # $HADOOP_HOME/sbin/start-yarn.sh
 }
 
 stop_hadoop() {
   echo "stop hadoop"
+  # $HADOOP_HOME/sbin/stop-yarn.sh
   $HADOOP_HOME/sbin/stop-dfs.sh
 }
 
