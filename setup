@@ -117,7 +117,7 @@ install_macos_pkg_gcloud() {
   if [ ! -d ~/google-cloud-sdk ]; then
     curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz | tar zx -C ~/
   fi
-  gcloud components install app-engine-python app-engine-python-extras app-engine-go app-engine-java --quiet
+  gcloud components install app-engine-python app-engine-python-extras app-engine-go app-engine-java gsutil --quiet
   # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
   GAE_SDK_ROOT=$HOME/google-cloud-sdk/platform/google_appengine
   if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
