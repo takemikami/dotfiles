@@ -87,8 +87,8 @@ install_pkg_anyenv() {
   # install pyenv, pyenv-virtualenv, anaconda(latest)
   if [ ! -e ~/.anyenv/envs/pyenv ]; then
     anyenv install pyenv
-    eval "$(anyenv init -)"
-    git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+    # eval "$(anyenv init -)"
+    # git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
   fi
   if [ `pyenv versions | grep anaconda | wc -l` -lt 1 ]; then
     last_anaconda=`pyenv install --list | grep anaconda | sort -r | head -1`
@@ -159,6 +159,7 @@ install_macos() {
   # install ediror & IDE
   brew cask install mi
   brew cask install atom
+  brew cask install sequel-pro
   #brew cask install intellij-idea
 
   # install utils
@@ -166,14 +167,19 @@ install_macos() {
   brew install wget
   brew install pwgen
   brew install mariadb
+  brew install nkf
 
   # diff for office
   brew install docx2txt
-  curl -L https://raw.githubusercontent.com/welcheb/pptx2txt.sh/master/pptx2txt.sh > ~/.local/bin/pptx2txt
+  if [ ! -e ~/.local/bin/pptx2txt ]; then
+    curl -L https://raw.githubusercontent.com/welcheb/pptx2txt.sh/master/pptx2txt.sh > ~/.local/bin/pptx2txt
+  fi
   chmod +x ~/.local/bin/pptx2txt
   brew install cpanm
   cpanm Spreadsheet::XLSX
-  curl -L https://raw.githubusercontent.com/yappo/p5-git-xlsx-textconv.pl/master/git-xlsx-textconv.pl > ~/.local/bin/git-xlsx-textconv
+  if [ ! -e ~/.local/bin/git-xlsx-textconv ]; then
+    curl -L https://raw.githubusercontent.com/yappo/p5-git-xlsx-textconv.pl/master/git-xlsx-textconv.pl > ~/.local/bin/git-xlsx-textconv
+  fi
   chmod +x ~/.local/bin/git-xlsx-textconv
 
   # install docker
@@ -190,7 +196,7 @@ install_macos() {
   #brew install packer
 
   # install cloud cli / google, heroku
-  #install_macos_pkg_gcloud
+  install_macos_pkg_gcloud
   #brew install heroku/brew/heroku
 
   # adobe cs6 trick
@@ -210,7 +216,9 @@ install_msys2() {
 
 # upgrade packages - for macos
 upgrade_macos() {
-  brew upgrade --cleanup
+  brew update
+  brew upgrade
+  # brew cask upgrade
   anyenv update
   gcloud components update --quiet
 }
@@ -218,7 +226,7 @@ upgrade_macos() {
 # clean cache - for macos
 clean_macos() {
   brew cleanup -s
-  brew cask cleanup --outdated
+  # brew cask cleanup --outdated
 }
 
 
@@ -238,6 +246,7 @@ case $1 in
     ;;
   upgrade)
     if [ ${OSTYPE} == "macos" ]; then
+      clean_macos
       upgrade_macos
     fi
     ;;
