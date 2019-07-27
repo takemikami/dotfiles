@@ -136,6 +136,12 @@ install_macos_pkg_nlp() {
     ~/.dotfiles/mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y -u -a
   fi
 }
+initialize_macos_env() {
+  # change screenshot location
+  mkdir -p ~/ScreenShot
+  defaults write com.apple.screencapture location ~/ScreenShot/
+  killall SystemUIServer
+}
 install_macos() {
   # install xcode command line tools
   xcode_path=`xcode-select -p`
@@ -201,6 +207,9 @@ install_macos() {
 
   # adobe cs6 trick
   #sudo mkdir -p /System/Library/Java/JavaVirtualMachines/1.6.0.jdk /System/Library/Java/Support/Deploy.bundle
+
+  # initialize env
+  initialize_macos_env
 }
 
 # install packages - for ubuntu
@@ -221,6 +230,9 @@ upgrade_macos() {
   # brew cask upgrade
   anyenv update
   gcloud components update --quiet
+  # update neologd
+  # cd ~/.dotfiles/mecab-ipadic-neologd
+  # bin/install-mecab-ipadic-neologd -n -y -u -a
 }
 
 # clean cache - for macos
