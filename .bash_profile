@@ -37,3 +37,9 @@ fi
 
 # load local settings
 for f in `find ~/.bash_profile.d/*`; do . $f ; done
+
+# activate venv
+if [ -f venv/bin/activate ]; then
+  . venv/bin/activate
+fi
+
