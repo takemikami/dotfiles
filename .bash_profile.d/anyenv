@@ -1,5 +1,6 @@
 # anyenv
 export PATH
 export PATH="$HOME/.anyenv/bin:$PATH"
-export ANYENV_ROOT=$HOME/.anyenv
-eval "$(PATH="$ANYENV_ROOT/libexec:$PATH" $ANYENV_ROOT/libexec/anyenv-init - --no-rehash)"
+eval "$(anyenv init -)"
+#export ANYENV_ROOT=$HOME/.anyenv
+#eval "$(PATH="$ANYENV_ROOT/libexec:$PATH" $ANYENV_ROOT/libexec/anyenv-init - --no-rehash)"

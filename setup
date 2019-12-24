@@ -74,12 +74,13 @@ install_macos() {
   brew install mas
   mas install 803453959 # Slack
 
-  # install browser, ediror
+  # install browser, editor, java
   brew update
   brew_cask_install google-chrome
   brew_cask_install mi
   brew_cask_install visual-studio-code
   brew_cask_install intellij-idea
+  brew_cask_install java
 
   # change screenshot location
   mkdir -p ~/ScreenShot
