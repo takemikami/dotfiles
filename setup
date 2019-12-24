@@ -70,6 +70,10 @@ install_macos() {
   brew install git
   brew install bash-completion
 
+  # install from appstore
+  brew install mas
+  mas install 803453959 # Slack
+
   # install browser, ediror
   brew update
   brew_cask_install google-chrome
