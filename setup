@@ -68,7 +68,6 @@ install_macos() {
 
   # install utils
   brew install git
-  brew install bash-completion
 
   # install from appstore
   brew install mas
