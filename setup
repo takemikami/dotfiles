@@ -19,6 +19,7 @@ install_pkg_anyenv() {
     git clone https://github.com/riywo/anyenv ~/.anyenv
     eval "$(anyenv init -)"
     git clone https://github.com/znz/anyenv-update.git $(anyenv root)/plugins/anyenv-update
+    anyenv install --init
   fi
   # install pyenv, anaconda(latest)
   if [ ! -e ~/.anyenv/envs/pyenv ]; then
