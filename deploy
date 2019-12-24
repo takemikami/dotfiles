@@ -1,0 +1,78 @@
+#!/bin/bash
+
+cd $(dirname $0)
+DOTFILES_HOME=`pwd`
+
+# check os
+OSTYPE=unknown
+UNAME=`uname -a`
+[[ $UNAME =~ "Darwin" ]] && OSTYPE=macos
+[[ $UNAME =~ "MSYS" ]] && OSTYPE=msys2
+[[ $UNAME =~ "MINGW" ]] && OSTYPE=msys2
+[[ $UNAME =~ "ubuntu" ]] && OSTYPE=ubuntu
+
+# deploy dotfiles
+deploy() {
+  for f in `ls -a . | grep -e "^\.[^.]?*" | grep -v -e "^\.git$"`; do
+
+    # skip ignore path
+    [[ ${f} = ".git" ]] && continue
+    [[ ! -f ${f} ]] && continue
+
+    # check os type
+    os_ext=""
+    fname=$f
+    if [[ $f =~ ^(.*)-(.*)$ ]]; then
+      fname=${BASH_REMATCH[1]}
+      os_ext=${BASH_REMATCH[2]}
+    fi
+    if [ ${#os_ext} -ne 0 ] && [ ! ${os_ext} == ${OSTYPE} ]; then
+      continue
+    fi
+    if [ ${#os_ext} -eq 0 ] && [ -e $DOTFILES_HOME/$fname-${OSTYPE} ]; then
+      continue
+    fi
+
+    # create symbolic link
+    if [ -e ~/$fname ]; then
+      echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
+    else
+      ln -s $DOTFILES_HOME/$f ~/$fname
+      echo "link $DOTFILES_HOME/$f -> ~/$fname"
+    fi
+  done
+
+  for d in .config .local .ssh .bash_profile.d; do
+    for f in `find $d`; do
+
+      # skip ignore path
+      [[ ! -f ${f} ]] && continue
+
+      # check os type
+      os_ext=""
+      fname=$f
+      if [[ $f =~ ^(.*)-(.*)$ ]]; then
+        fname=${BASH_REMATCH[1]}
+        os_ext=${BASH_REMATCH[2]}
+      fi
+      if [ ${#os_ext} -ne 0 ] && [ ! ${os_ext} == ${OSTYPE} ]; then
+        continue
+      fi
+      if [ ${#os_ext} -eq 0 ] && [ -e $DOTFILES_HOME/$fname-${OSTYPE} ]; then
+        continue
+      fi
+
+      # create symbolic link
+      if [ -e ~/$fname ]; then
+        echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
+      else
+        mkdir -p $(dirname ~/$fname)
+        ln -s "$DOTFILES_HOME/$f" ~/$fname
+        echo "link $DOTFILES_HOME/$f -> ~/$fname"
+      fi
+    done
+  done
+
+}
+
+deploy

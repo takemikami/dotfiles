@@ -8,6 +8,11 @@ fi
 # User specific environment and startup programs
 PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
+# enable bash-completion
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
+
 # node modules bin
 export PATH=$PATH:./node_modules/.bin
 
@@ -21,9 +26,6 @@ export PATH=$CONSCRIPT_HOME/bin:$PATH
 
 # calibre
 export PATH=$PATH:/Applications/calibre.app/Contents/MacOS/
-
-# embulk
-export PATH=$HOME/.embulk/bin:$PATH
 
 # for macos
 if [[ $(uname) =~ "Darwin" ]]; then

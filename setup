@@ -11,70 +11,6 @@ UNAME=`uname -a`
 [[ $UNAME =~ "MINGW" ]] && OSTYPE=msys2
 [[ $UNAME =~ "ubuntu" ]] && OSTYPE=ubuntu
 
-# deploy dotfiles
-deploy() {
-  for f in `ls -a . | grep -e "^\.[^.]?*" | grep -v -e "^\.git$"`; do
-
-    # skip ignore path
-    [[ ${f} = ".git" ]] && continue
-    [[ ! -f ${f} ]] && continue
-
-    # check os type
-    os_ext=""
-    fname=$f
-    if [[ $f =~ ^(.*)-(.*)$ ]]; then
-      fname=${BASH_REMATCH[1]}
-      os_ext=${BASH_REMATCH[2]}
-    fi
-    if [ ${#os_ext} -ne 0 ] && [ ! ${os_ext} == ${OSTYPE} ]; then
-      continue
-    fi
-    if [ ${#os_ext} -eq 0 ] && [ -e $DOTFILES_HOME/$fname-${OSTYPE} ]; then
-      continue
-    fi
-
-    # create symbolic link
-    if [ -e ~/$fname ]; then
-      echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
-    else
-      ln -s $DOTFILES_HOME/$f ~/$fname
-      echo "link $DOTFILES_HOME/$f -> ~/$fname"
-    fi
-  done
-
-  for d in .config .local .ssh .atom .bash_profile.d; do
-    for f in `find $d`; do
-
-      # skip ignore path
-      [[ ! -f ${f} ]] && continue
-
-      # check os type
-      os_ext=""
-      fname=$f
-      if [[ $f =~ ^(.*)-(.*)$ ]]; then
-        fname=${BASH_REMATCH[1]}
-        os_ext=${BASH_REMATCH[2]}
-      fi
-      if [ ${#os_ext} -ne 0 ] && [ ! ${os_ext} == ${OSTYPE} ]; then
-        continue
-      fi
-      if [ ${#os_ext} -eq 0 ] && [ -e $DOTFILES_HOME/$fname-${OSTYPE} ]; then
-        continue
-      fi
-
-      # create symbolic link
-      if [ -e ~/$fname ]; then
-        echo "[warn] skip $DOTFILES_HOME/$f -> ~/$fname"
-      else
-        mkdir -p $(dirname ~/$fname)
-        ln -s "$DOTFILES_HOME/$f" ~/$fname
-        echo "link $DOTFILES_HOME/$f -> ~/$fname"
-      fi
-    done
-  done
-
-}
-
 # install packages
 install_pkg_anyenv() {
   # install anyenv, anyenv-update
@@ -84,11 +20,9 @@ install_pkg_anyenv() {
     eval "$(anyenv init -)"
     git clone https://github.com/znz/anyenv-update.git $(anyenv root)/plugins/anyenv-update
   fi
-  # install pyenv, pyenv-virtualenv, anaconda(latest)
+  # install pyenv, anaconda(latest)
   if [ ! -e ~/.anyenv/envs/pyenv ]; then
     anyenv install pyenv
-    # eval "$(anyenv init -)"
-    # git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
   fi
   if [ `pyenv versions | grep anaconda | wc -l` -lt 1 ]; then
     last_anaconda=`pyenv install --list | grep anaconda | sort -r | head -1`
@@ -112,38 +46,10 @@ install_pkg_anyenv() {
 }
 
 # install packages - for macos
-install_macos_pkg_gcloud() {
-  brew cask install google-cloud-sdk
-  gcloud components install app-engine-python app-engine-python-extras
-
-  # # install gcloud client
-  # if [ ! -d ~/google-cloud-sdk ]; then
-  #   curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz | tar zx -C ~/
-  # fi
-  # gcloud components install app-engine-python app-engine-python-extras app-engine-go app-engine-java gsutil --quiet
-  # # see. https://stackoverflow.com/questions/27114470/gae-sdk-1-9-5-and-an-invalidcertificateexception
-  # GAE_SDK_ROOT=$HOME/google-cloud-sdk/platform/google_appengine
-  # if [ -f $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py ]; then
-  #   cp $GAE_SDK_ROOT/lib/fancy_urllib/fancy_urllib/__init__.py $GAE_SDK_ROOT/lib/fancy_urllib/__init__.py
-  # fi
-}
-install_macos_pkg_nlp() {
-  # install mecab
-  brew install mecab
-  brew install mecab-ipadic
-
-  # install neologd
-  mkdir -p ~/.dotfiles
-  if [ ! -d ~/.dotfiles/mecab-ipadic-neologd ]; then
-    git clone --depth 1 git@github.com:neologd/mecab-ipadic-neologd.git ~/.dotfiles/mecab-ipadic-neologd
-    ~/.dotfiles/mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y -u -a
+brew_cask_install() {
+  if [ `brew cask list | grep $1 | wc -l` -lt 1 ]; then
+    brew cask install $1
   fi
-}
-initialize_macos_env() {
-  # change screenshot location
-  mkdir -p ~/ScreenShot
-  defaults write com.apple.screencapture location ~/ScreenShot/
-  killall SystemUIServer
 }
 install_macos() {
   # install xcode command line tools
@@ -157,22 +63,36 @@ install_macos() {
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 
-  # install anyenv
+  # install anyenv, latest anaconda
   install_pkg_anyenv
-  brew install watchman
 
+  # install utils
+  brew install git
+  brew install bash-completion
+
+  # install browser, ediror
+  brew update
+  brew_cask_install google-chrome
+  brew_cask_install mi
+  brew_cask_install visual-studio-code
+  brew_cask_install intellij-idea
+
+  # change screenshot location
+  mkdir -p ~/ScreenShot
+  defaults write com.apple.screencapture location ~/ScreenShot/
+  killall SystemUIServer
+}
+install_macos_all() {
   # install build tools / java & scala
   brew install gradle
   brew install sbt
 
   # install ediror & IDE
-  brew cask install mi
-  brew cask install atom
-  brew cask install sequel-pro
-  #brew cask install intellij-idea
+  # brew cask install sequel-pro
 
   # install utils
   brew tap homebrew/services
+  brew install watchman
   brew install wget
   brew install pwgen
   brew install mariadb
@@ -192,27 +112,33 @@ install_macos() {
   chmod +x ~/.local/bin/git-xlsx-textconv
 
   # install docker
-  brew cask install docker
+  # brew cask install docker
 
   # install R
-  #brew install r
-  #brew cask install rstudio
+  brew install r
+  brew cask install rstudio
 
   # install packages for Natural Language Processing
-  install_macos_pkg_nlp
+  brew install mecab
+  brew install mecab-ipadic
+  mkdir -p ~/.dotfiles
+  if [ ! -d ~/.dotfiles/mecab-ipadic-neologd ]; then
+    git clone --depth 1 git@github.com:neologd/mecab-ipadic-neologd.git ~/.dotfiles/mecab-ipadic-neologd
+    ~/.dotfiles/mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y -u -a
+  fi
 
   # install packer
   #brew install packer
 
-  # install cloud cli / google, heroku
-  install_macos_pkg_gcloud
-  #brew install heroku/brew/heroku
+  # install gcloud cli
+  brew cask install google-cloud-sdk
+  gcloud components install app-engine-python app-engine-python-extras
+
+  # install heroku cli
+  brew install heroku/brew/heroku
 
   # adobe cs6 trick
-  #sudo mkdir -p /System/Library/Java/JavaVirtualMachines/1.6.0.jdk /System/Library/Java/Support/Deploy.bundle
-
-  # initialize env
-  initialize_macos_env
+  # sudo mkdir -p /System/Library/Java/JavaVirtualMachines/1.6.0.jdk /System/Library/Java/Support/Deploy.bundle
 }
 
 # install packages - for ubuntu
@@ -247,12 +173,19 @@ clean_macos() {
 
 # main routine
 case $1 in
-  deploy)
-    deploy
-    ;;
   install)
     if [ ${OSTYPE} == "macos" ]; then
       install_macos
+    elif [ ${OSTYPE} == "ubuntu" ]; then
+      install_ubuntu
+    elif [ ${OSTYPE} == "msys2" ]; then
+      install_msys2
+    fi
+    ;;
+  install-all)
+    if [ ${OSTYPE} == "macos" ]; then
+      install_macos
+      install_macos_all
     elif [ ${OSTYPE} == "ubuntu" ]; then
       install_ubuntu
     elif [ ${OSTYPE} == "msys2" ]; then
@@ -271,5 +204,5 @@ case $1 in
     fi
     ;;
   *)
-    echo "usage: dotfiles/setup [deploy|install|upgrade|clean]"
+    echo "usage: dotfiles/setup [install|install-all|upgrade|clean]"
 esac
