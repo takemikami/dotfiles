@@ -64,11 +64,10 @@ install_macos() {
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 
-  # install anyenv, latest anaconda
-  install_pkg_anyenv
-
   # install utils
   brew install git
+  brew install wget
+  brew install nkf
 
   # install from appstore
   brew install mas
@@ -82,10 +81,17 @@ install_macos() {
   brew_cask_install intellij-idea
   brew_cask_install java
 
+  # install anyenv, latest anaconda
+  if [ ! -e /usr/local/Cellar/anyenv ]; then
+    sudo chown -R $(whoami) /usr/local/share/man/man8
+    brew install anyenv
+    anyenv install --init
+  fi
+
   # change screenshot location
-  mkdir -p ~/ScreenShot
-  defaults write com.apple.screencapture location ~/ScreenShot/
-  killall SystemUIServer
+  # mkdir -p ~/ScreenShot
+  # defaults write com.apple.screencapture location ~/ScreenShot/
+  # killall SystemUIServer
 }
 install_macos_all() {
   # install build tools / java & scala
