@@ -2,15 +2,11 @@
 
 I currently use following software:
 
-- Terminal multiplexer - tmux
-- Text editor - vim, atom
 - Programming environment manager - anyenv
 
 This dotfiles for following environments:
 
 - macOS
-- MSYS2/MinGW
-- Ubuntu
 
 ## usage
 
@@ -23,6 +19,6 @@ This dotfiles for following environments:
 cd ~
 git clone git@github.com:takemikami/dotfiles.git
 dotfiles/setup deploy
-source ~/.bash_profile
+source ~/.zshrc
 dotfiles/setup install
 ```
