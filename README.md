@@ -10,7 +10,7 @@ This dotfiles for following environments:
 
 ## usage
 
-- dotfiles/setup deploy - link dotfiles
+- dotfiles/deploy - link dotfiles
 - dotfiles/setup install - install software
 
 ## quick setup
@@ -18,7 +18,7 @@ This dotfiles for following environments:
 ```
 cd ~
 git clone git@github.com:takemikami/dotfiles.git
-dotfiles/setup deploy
+dotfiles/deploy
 source ~/.zshrc
 dotfiles/setup install
 ```
