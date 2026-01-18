@@ -1,0 +1,17 @@
+[include]
+  path = ~/.gitconfig.local
+
+[core]
+  excludesfile = ~/.gitconfig.d/.gitignore
+
+[init]
+	templateDir = ~/.gitconfig.d/git-template
+
+[alias]
+  st = status
+  co = checkout
+  br = branch
+  sw = switch
+  wt = worktree
+  push-origin = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push origin $CRR_BRANCH
+  push-fork = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push fork $CRR_BRANCH

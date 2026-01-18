@@ -1,0 +1,3 @@
+function codeg() {
+    code $(git rev-parse --show-toplevel)
+}
