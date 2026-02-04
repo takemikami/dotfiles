@@ -1,0 +1,53 @@
+#!/bin/bash
+set -euo pipefail
+#
+# dataform-format - Format only changed dataform files
+#
+# Usage:
+#   dataform-format [dataform-root-dir] [git-base-branch]
+#
+# Arguments:
+#   dataform-root-dir   Path to the dataform project root directory
+#                       (must contain workflow_settings.yaml, default: .)
+#   git-base-branch     Git branch name to compare against (default: main)
+#
+# Description:
+#   Detects .sqlx and .js files changed from origin/<git-base-branch>
+#   using git diff, then runs `dataform format` on those files only.
+#   If no changed files are found, exits without formatting.
+
+dataform_root="${1:-.}"
+base_branch="${2:-main}"
+
+if [ ! -f "$dataform_root/workflow_settings.yaml" ]; then
+    echo "error: $dataform_root/workflow_settings.yaml is not found."
+    exit 1
+fi
+cd "$dataform_root" || exit 1
+
+# Verify that the remote branch exists
+if ! git rev-parse --verify "origin/$base_branch" >/dev/null 2>&1; then
+    echo "error: origin/$base_branch not found. Run 'git fetch origin' first."
+    exit 1
+fi
+
+# Get changed files from git diff (compared to base branch + unstaged)
+path_prefix=$(pwd | sed "s|^$(git rev-parse --show-toplevel)/||")
+changed_files=()
+while IFS= read -r f; do
+  [ -n "$f" ] && changed_files+=("$f")
+done < <(git diff --name-only "origin/$base_branch" --diff-filter=d -- '*.sqlx' '*.js' | \
+  sed "s|^$path_prefix/||" | sort -u)
+
+if [ ${#changed_files[@]} -eq 0 ]; then
+  echo "No changed .sqlx/.js files found."
+  exit 0
+fi
+
+# Build --actions arguments
+actions_args=()
+for f in "${changed_files[@]}"; do
+  actions_args+=(--actions "$f")
+done
+
+dataform format "${actions_args[@]}"

@@ -21,3 +21,9 @@ deploy others
 ```sh
 ls -a ~/dotfiles/ | grep '^\.[^.]' | grep -v ^\\.git$ | grep -v ^\\.ssh$ | xargs -I{} sh -c 'test ! -e ~/{} && ln -s ~/dotfiles/{} ~/{}'
 ```
+
+deploy scripts
+
+```sh
+ls -a ~/dotfiles/scripts/bin | grep -v '^\.' | xargs -I{} sh -c 'test ! -e ~/.local/bin/{} && ln -s ~/dotfiles/scripts/bin/{} ~/.local/bin/{}'
+```
