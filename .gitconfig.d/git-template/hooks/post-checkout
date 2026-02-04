@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+is_branch_checkout=$3
+if [ "$is_branch_checkout" != "1" ]; then
+    exit 0
+fi
+
+GIT_COMMON_REPO_DIR=$(dirname "$(git rev-parse --git-common-dir)")
+GIT_REPO_DIR=$(git rev-parse --show-toplevel)
+files=(
+    .env
+    .envrc
+)
+for f in "${files[@]}"; do
+    if [ -e "$GIT_COMMON_REPO_DIR/$f" ] && [ ! -e "$GIT_REPO_DIR/$f" ] && [ ! -L "$GIT_REPO_DIR/$f" ]; then
+        ln -s "$GIT_COMMON_REPO_DIR/$f" "$GIT_REPO_DIR/$f"
+    fi
+done
