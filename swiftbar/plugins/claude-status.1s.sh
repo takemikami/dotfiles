@@ -53,7 +53,7 @@ elif [ "$waiting" -gt 0 ]; then
         echo "🟢 ${total}"
     fi
 else
-    echo "⚪"
+    echo "❓"
 fi
 
 # Dropdown menu
@@ -66,14 +66,22 @@ else
         session_id=$(basename "$f")
         status=$(/usr/bin/jq -r '.status // empty' "$f" 2>/dev/null)
         cwd=$(/usr/bin/jq -r '.cwd // empty' "$f" 2>/dev/null)
+        iterm_session=$(/usr/bin/jq -r '.iterm_session_id // empty' "$f" 2>/dev/null)
+        branch=$(/usr/bin/jq -r '.branch // empty' "$f" 2>/dev/null)
         case "$status" in
             thinking) icon="🤔" ;;
             paused)   icon="⚠️" ;;
             waiting)  icon="🟢" ;;
             *)        icon="❓" ;;
         esac
-        short_id="${session_id:0:8}"
         dir_name="${cwd##*/}"
-        echo "${icon} ${short_id} ${dir_name}"
+        label="${icon} ${dir_name}"
+        [ -n "$branch" ] && label="${label} (${branch})"
+        if [ -n "$iterm_session" ]; then
+            iterm_session_short=${iterm_session##*:}
+            echo "${label} | bash=$HOME/dotfiles/swiftbar/bin/iterm-activate-session param1=${iterm_session_short} terminal=false"
+        else
+            echo "${label}"
+        fi
     done
 fi
