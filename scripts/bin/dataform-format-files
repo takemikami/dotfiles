@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# pre-commit hook for dataform format.
+# 引数としてルートディレクトリ(複数可)とファイルパスを受け取り、
+# 各ルートに属するファイルを振り分けて dataform format を実行する。
+# フォーマット違反があれば自動修正し、非ゼロで終了する。
+set -euo pipefail
+
+roots=()
+files=()
+for arg in "$@"; do
+    if [ -d "$arg" ]; then
+        roots+=("$arg")
+    else
+        files+=("$arg")
+    fi
+done
+
+if [ ${#roots[@]} -eq 0 ]; then
+    echo "no valid dataform repository roots found."
+    exit 1
+fi
+
+overall_rtn=0
+for root in "${roots[@]}"; do
+    abs_root=$(cd "$root" && pwd)
+    abs_cwd=$(pwd)
+    path_prefix="${abs_root#"$abs_cwd"}"
+    path_prefix="${path_prefix#/}"
+
+    actions_args=()
+    for f in "${files[@]}"; do
+        if [[ "$f" == "$path_prefix"* ]]; then
+            arg="${f#"$path_prefix"}"
+            arg="${arg#/}"
+            if [ -n "$arg" ]; then
+                actions_args+=(--actions "$arg")
+            fi
+        fi
+    done
+
+    if [ ${#actions_args[@]} -eq 0 ]; then
+        continue
+    fi
+
+    if [ -n "$path_prefix" ]; then
+        format_path="$path_prefix"
+    else
+        format_path="."
+    fi
+
+    npx -y @dataform/cli@^3.0.0 format --check "$format_path" "${actions_args[@]}" || rtn=$?
+    if [ "${rtn:-0}" != 0 ]; then
+        npx -y @dataform/cli@^3.0.0 format "$format_path" "${actions_args[@]}"
+        overall_rtn=1
+    fi
+done
+
+exit $overall_rtn
