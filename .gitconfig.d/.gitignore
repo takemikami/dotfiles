@@ -3,9 +3,15 @@
 # direnv
 .envrc
 
+# dotenv
+.env
+
 # claude code
 .claude/settings.local.json
 **/.claude/settings.local.json
+
+# local modules
+.local
 
 # ---- general ignore
 # see. https://github.com/github/gitignore/blob/master/Global/MicrosoftOffice.gitignore
