@@ -5,7 +5,7 @@
   excludesfile = ~/.gitconfig.d/.gitignore
 
 [init]
-	templateDir = ~/.gitconfig.d/git-template
+  templateDir = ~/.gitconfig.d/git-template
 
 [alias]
   st = status
@@ -17,3 +17,8 @@
   push-fork = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push fork $CRR_BRANCH
   junk-commit = !git commit --fixup=$(git log --grep='^fixup!' --invert-grep -1 --pretty=%H)
   junk-rebase = !git rebase -i $(git log --grep='^fixup!' --invert-grep -2 --pretty=%H | tail -1) --autosquash
+  stack = town branch
+
+[git-town]
+	sync-feature-strategy = rebase
+	push-branches = false
