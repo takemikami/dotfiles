@@ -18,6 +18,12 @@
   junk-commit = !git commit --fixup=$(git log --grep='^fixup!' --invert-grep -1 --pretty=%H)
   junk-rebase = !git rebase -i $(git log --grep='^fixup!' --invert-grep -2 --pretty=%H | tail -1) --autosquash
   stack = town branch
+  down = town down
+  up = town up
+  append = town append
+  set-parent = town set-parent
+  detach = town detach
+  sync = town sync
 
 [git-town]
 	sync-feature-strategy = rebase
