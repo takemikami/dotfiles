@@ -24,6 +24,7 @@
   set-parent = town set-parent
   detach = town detach
   sync = town sync
+  pre-commit-run = !TARGETS=$(git diff --name-only HEAD && git ls-files --others --exclude-standard) && pre-commit run --files $TARGETS
 
 [git-town]
 	sync-feature-strategy = rebase
