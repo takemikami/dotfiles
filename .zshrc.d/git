@@ -1,0 +1,8 @@
+# change worktree
+cwt() {
+    if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = "true" ]; then
+        local selected
+        selected=$(git worktree list | fzf --height 10 --layout=reverse | awk '{print $1}')
+        [[ -n "$selected" ]] && cd "$selected"
+    fi
+}
