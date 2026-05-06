@@ -1,15 +1,68 @@
-if [ -f /opt/homebrew/opt/zsh-git-prompt/zshrc.sh ]; then
-    source /opt/homebrew/opt/zsh-git-prompt/zshrc.sh
-    git_prompt() {
-        if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = "true" ]; then
-            PS1='%n@%m %1~ $(git_super_status) %# '
+# if [ -f /opt/homebrew/opt/zsh-git-prompt/zshrc.sh ]; then
+#     source /opt/homebrew/opt/zsh-git-prompt/zshrc.sh
+#     git_prompt() {
+#         if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = "true" ]; then
+#             PS1='%n@%m %1~ $(git_super_status) %# '
+#         else
+#             PS1='%n@%m %1~ %# '
+#         fi
+#     }
+#     precmd() {
+#         git_prompt
+#     }
+# else
+#     PS1='%n@%m %1~ %# '
+# fi
+
+autoload -U colors
+colors
+setopt PROMPT_SUBST
+
+# Colors
+RST=$'\033[0m'
+RED=$'\033[0;31m'
+GREEN_BOLD=$'\033[1;32m'
+BLUE=$'\033[0;34m'
+MAGENTA_BOLD=$'\033[1;35m'
+
+git_prompt_status() {
+    cwd=$(pwd)
+    branch=$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null)
+    if [ ! -z "$branch" ]; then
+        # Staging status
+        staged=$(git -C "$cwd" diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')
+        unstaged=$(git -C "$cwd" diff --name-only 2>/dev/null | wc -l | tr -d ' ')
+        untracked=$(git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
+        unmerged=$(git -C "$cwd" diff --name-only --diff-filter=U 2>/dev/null | wc -l | tr -d ' ')
+
+        status_parts=""
+        if [ "$staged" -eq 0 ] && [ "$unmerged" -eq 0 ] && [ "$unstaged" -eq 0 ] && [ "$untracked" -eq 0 ]; then
+            status_parts="${GREEN_BOLD}✔${RST}"
         else
-            PS1='%n@%m %1~ %# '
+            if [ "$staged" -gt 0 ]; then
+                status_parts="${RED}●${staged}${RST}"
+            fi
+            if [ "$unmerged" -gt 0 ]; then
+                status_parts="${status_parts:+${status_parts}}${RED}✖${unmerged}${RST}"
+            fi
+            if [ "$unstaged" -gt 0 ]; then
+                status_parts="${status_parts:+${status_parts}}${BLUE}✚${unstaged}${RST}"
+            fi
+            if [ "$untracked" -gt 0 ]; then
+                status_parts="${status_parts:+${status_parts}}…"
+            fi
         fi
-    }
-    precmd() {
-        git_prompt
-    }
-else
-    PS1='%n@%m %1~ %# '
-fi
+        echo "($MAGENTA_BOLD$branch$RST|$status_parts)"
+    fi
+}
+
+git_prompt() {
+    if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = "true" ]; then
+        PS1='%n@%m %1~ $(git_prompt_status) %# '
+    else
+        PS1='%n@%m %1~ %# '
+    fi
+}
+precmd() {
+    git_prompt
+}
