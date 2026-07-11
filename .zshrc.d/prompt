@@ -1,11 +1,11 @@
 setopt PROMPT_SUBST
 
 # Colors
-RST=$'\033[0m'
-RED=$'\033[0;31m'
-GREEN_BOLD=$'\033[1;32m'
-BLUE=$'\033[0;34m'
-MAGENTA_BOLD=$'\033[1;35m'
+RST="%{\033[0m%}"
+RED="%{\033[0;31m%}"
+GREEN_BOLD="%{\033[1;32m%}"
+BLUE="%{\033[0;34m%}"
+MAGENTA_BOLD="%{\033[1;35m%}"
 
 git_prompt_status() {
     cwd=$(pwd)
