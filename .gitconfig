@@ -13,6 +13,11 @@
   br = branch
   sw = switch
   wt = worktree
+  log1 = log --oneline
   push-origin = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push origin $CRR_BRANCH
   push-fork = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push fork $CRR_BRANCH
   pre-commit-run = !TARGETS=$(git diff --name-only HEAD && git ls-files --others --exclude-standard) && pre-commit run --files $TARGETS
+
+  # visual-diff https://github.com/dlvhdr/diffnav
+  vdiff = "!f() { git diff | diffnav; }; f"
+  pr-diff = "!f() { gh pr diff | diffnav; }; f"
