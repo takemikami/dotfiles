@@ -1,2 +1,2 @@
 autoload -Uz compinit && compinit
-source <(git town completions zsh)
+#source <(git completions zsh)

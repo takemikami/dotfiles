@@ -15,17 +15,4 @@
   wt = worktree
   push-origin = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push origin $CRR_BRANCH
   push-fork = !CRR_BRANCH=$(git symbolic-ref --short HEAD) && git push fork $CRR_BRANCH
-  junk-commit = !git commit --fixup=$(git log --grep='^fixup!' --invert-grep -1 --pretty=%H)
-  junk-rebase = !git rebase -i $(git log --grep='^fixup!' --invert-grep -2 --pretty=%H | tail -1) --autosquash
-  stack = town branch
-  down = town down
-  up = town up
-  append = town append
-  set-parent = town set-parent
-  detach = town detach
-  sync = town sync
   pre-commit-run = !TARGETS=$(git diff --name-only HEAD && git ls-files --others --exclude-standard) && pre-commit run --files $TARGETS
-
-[git-town]
-	sync-feature-strategy = rebase
-	push-branches = false
