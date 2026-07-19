@@ -1,0 +1,8 @@
+mdview() {
+    # https://github.com/joeyespo/grip
+    find . | grep '.md$' | fzf --height 10 --layout=reverse | xargs -I {} sh -c 'echo http://localhost:6419 && grip {} localhost:6419 --quiet'
+}
+jsonview() {
+    # https://github.com/ArthurSonzogni/json-tui
+    find . | grep '.json$' | fzf --height 10 --layout=reverse | xargs -I {} sh -c 'json-tui {}'
+}
