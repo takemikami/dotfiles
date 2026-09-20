@@ -56,8 +56,8 @@
   }; f"
 
   # orca & worktree
-  wt-new = "!f() { REPO_ID=$(orca worktree current --json | jq -r .result.worktree.repoId) DEFAULT_BRANCH=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##') && orca worktree create --repo id:$REPO_ID --base-branch $DEFAULT_BRANCH --no-parent --name $1 > /dev/null; }; f $2"
-  wt-sub = "!f() { REPO_ID=$(orca worktree current --json | jq -r .result.worktree.repoId) && orca worktree create --repo id:$REPO_ID --name $1 > /dev/null; }; f $2"
+  wt-new = "!f() { DEFAULT_BRANCH=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##') && orca worktree create --base-branch $DEFAULT_BRANCH --no-parent --name $1 > /dev/null; }; f"
+  wt-sub = "!f() { orca worktree create --name $1 > /dev/null; }; f"
   wt-clean = "!f() { \
     orca worktree ps --json \
     | jq -r '.result.worktrees.[] | select(.linkedPR.state==\"closed\" or .linkedPR.state==\"merged\") | .worktreeId' \
