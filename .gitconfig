@@ -19,5 +19,5 @@
   pre-commit-run = !TARGETS=$(git diff --name-only HEAD && git ls-files --others --exclude-standard) && pre-commit run --files $TARGETS
 
   # visual-diff https://github.com/dlvhdr/diffnav
-  vdiff = "!f() { git diff | diffnav; }; f"
+  vdiff = "!f() { git diff $1 | diffnav; }; f $2"
   pr-diff = "!f() { gh pr diff | diffnav; }; f"
