@@ -20,4 +20,37 @@
 
   # visual-diff https://github.com/dlvhdr/diffnav
   vdiff = "!f() { git diff $1 | diffnav; }; f $2"
+
+  # github https://docs.github.com/ja/github-cli/github-cli/about-github-cli
   pr-diff = "!f() { gh pr diff | diffnav; }; f"
+  pr-clean = "!f() { \
+    crr_branch=$(git rev-parse --abbrev-ref HEAD); \
+    if [ \"$crr_branch\" = \"main\" ] || [ \"$crr_branch\" = \"master\" ]; then \
+      for wt in $(git worktree list --porcelain | awk '/^worktree /{print $2}'); do \
+        branch=$(git -C \"$wt\" branch --show-current); \
+        if [ \"$(gh pr view \"$branch\" --json state --jq .state 2>/dev/null)\" = \"MERGED\" ]; then \
+          echo \"remove $wt $branch\"; \
+          git worktree remove \"$wt\"; \
+          git branch -d \"$branch\"; \
+        fi \
+      done; \
+      for branch in $(git branch --merged | grep -v \"^[+*]\" | grep -v \"^\\*|main$|master$|develop$\"); do \
+        if [ \"$(gh pr view \"$branch\" --json state --jq .state 2>/dev/null)\" = \"MERGED\" ]; then \
+          echo \"remove $branch\"; \
+          git branch -d \"$branch\"; \
+        fi \
+      done \
+    else \
+      echo \"現在のブランチが main/master ではないため実行しません: $branch\"; \
+    fi; \
+  }; f"
+  pr-get = "!f() { \
+    crr_branch=$(git rev-parse --abbrev-ref HEAD); \
+    if [ \"$crr_branch\" = \"main\" ] || [ \"$crr_branch\" = \"master\" ]; then \
+      branch=$(gh pr view $1 --json headRefName --jq .headRefName); \
+      git fetch origin $branch; \
+      git worktree add /Users/mikamitakeshi/repo/worktree/$branch $branch; \
+    else \
+      echo \"現在のブランチが main/master ではないため実行しません: $branch\"; \
+    fi; \
+  }; f"
